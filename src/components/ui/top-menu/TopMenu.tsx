@@ -42,7 +42,7 @@ export const TopMenu = () => {
           <IoSearchCircleOutline className='w-5 h-5' />
         </Link>
 
-        <Link href={'cart'} className='mx-2'>
+        <Link href={'/cart'} className='mx-2'>
             <div className='relative'>
               <span className='absolute text-xs rounded-full font-bold px-1 -top-2 bg-blue-700 text-white -right-2'>3</span>
             <IoCartOutline className='w-5 h-5' />

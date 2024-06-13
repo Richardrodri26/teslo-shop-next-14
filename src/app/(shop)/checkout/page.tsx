@@ -12,7 +12,7 @@ const productsInCart = [
 ];
 
 
-export default function () {
+export default function CheckoutPage() {
   return (
     <div className="flex justify-center items-center mb-72 px-10 sm:px-0">
 
