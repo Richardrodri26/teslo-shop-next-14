@@ -1,6 +1,9 @@
-import { ProductMobileSlideshow, ProductSlideshow, QuantitySelector, SizeSelector } from "@/components";
+export const revalidate = 604800;
+
+import type { Metadata, ResolvingMetadata } from 'next'
+import { getProductBySlug } from "@/actions";
+import { ProductMobileSlideshow, ProductSlideshow, QuantitySelector, SizeSelector, StockLabel } from "@/components";
 import { titleFont } from "@/config/fonts";
-import { initialData } from "@/seed/seed";
 import { notFound } from "next/navigation";
 
 interface Props {
@@ -9,31 +12,65 @@ interface Props {
   }
 }
 
-export default function ProductBySlugPage({ params }: Props) {
-  const { slug } = params;
-  const product = initialData.products.find(product => product.slug === slug);
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // read route params
+  const slug = (await params).slug
 
-  if(!product) {
+  // fetch data
+  const product = await getProductBySlug(slug)
+
+  // optionally access and extend (rather than replace) parent metadata
+  // const previousImages = (await parent).openGraph?.images || []
+
+  return {
+    metadataBase: new URL('https://0edf-2800-e2-4680-1ad2-197c-46e0-6019-138a.ngrok-free.app'),
+    alternates: {
+      canonical: '/',
+      languages: {
+        'en-US': '/en-US',
+        'de-DE': '/de-DE',
+      },
+    },
+    title: product?.title || 'Producto no encontrado',
+    description: product?.description || 'Producto no encontrado',
+    openGraph: {
+      title: product?.title || 'Producto no encontrado',
+      description: product?.description || 'Producto no encontrado',
+      images: [ `/products/${ product?.images[1] }`],
+    },
+  }
+}
+
+
+
+export default async function ProductBySlugPage({ params }: Props) {
+  const { slug } = params;
+  const product = await getProductBySlug(slug)
+
+  if (!product) {
     notFound()
   }
-  
+
   return (
     <div className="mt-5 mb-20 grid grid-cols-1 md:grid-cols-3 gap-3">
 
       {/* Slideshow */}
       <div className="col-span-1 md:col-span-2">
 
-         {/* Mobile Slideshow */}
-         <ProductMobileSlideshow 
-          title={ product.title }
-          images={ product.images }
+        {/* Mobile Slideshow */}
+        <ProductMobileSlideshow
+          title={product.title}
+          images={product.images}
           className="block md:hidden"
         />
-        
+
         {/* Desktop Slideshow */}
-        <ProductSlideshow 
-          title={ product.title }
-          images={ product.images }
+        <ProductSlideshow
+          title={product.title}
+          images={product.images}
           className="hidden md:block"
         />
 
@@ -41,6 +78,8 @@ export default function ProductBySlugPage({ params }: Props) {
 
       {/* Detalles */}
       <div className="cols-span-1 px-5 ">
+        <StockLabel slug={product.slug} />
+
         <h1 className={`${titleFont.className} antialiased font-bold text-xl`}>
           {product.title}
         </h1>
@@ -52,17 +91,17 @@ export default function ProductBySlugPage({ params }: Props) {
 
         {/* Selector de cantidad */}
         <QuantitySelector quantity={5} />
-        
+
         {/* Button */}
         <button className="btn-primary my-5">
           Agregar al carrito
-          </button>
+        </button>
 
-          {/* Descripción */}
-          <h3 className="font-bold text-sm">Descripción</h3>
-          <p className="font-light">
-            {product.description}
-          </p>
+        {/* Descripción */}
+        <h3 className="font-bold text-sm">Descripción</h3>
+        <p className="font-light">
+          {product.description}
+        </p>
 
       </div>
 
