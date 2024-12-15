@@ -1,7 +1,7 @@
 import { Footer, Sidebar, TopMenu } from "@/components";
 
 
-export default function ShopLayout({
+export default async function ShopLayout({
   children
 }: {
   children: React.ReactNode;
